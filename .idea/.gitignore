@@ -37,3 +37,9 @@ bin/
 # Ignorar o arquivo do banco de dados SQLite
 *.db
 *.sqlite
+
+# Ignorar arquivos compilados soltos (caso saiam das pastas bin/ ou out/)
+*.class
+
+# Ignorar arquivos de log (como você tem as bibliotecas do SLF4J, pode ser que logs sejam gerados no futuro)
+*.log
