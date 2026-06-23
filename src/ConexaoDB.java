@@ -7,7 +7,7 @@ public class ConexaoDB {
 
     public static Connection conectar() {
          try {
-             return DriverManager.getConnection(url:"jdbc:sqlite:meu_banco_de_dados.db");
+             return DriverManager.getConnection("jdbc:sqlite:meu_banco_de_dados.db");
          } catch (SQLException var1) {
              System.err.println("Erro ao conectar ao banco de dados: " + var1.getMessage());
              return null;

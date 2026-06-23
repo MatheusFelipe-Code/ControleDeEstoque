@@ -2,7 +2,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Hbox;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
@@ -11,9 +11,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.Connection;
 import java.util.List;
-import java.sql.Exception;
+import java.sql.SQLException;
 
-public class Produto GUI extends Application {
+public class ProdutoGUI extends Application {
     private ProdutoDao produtoDao;
     private ObservableList<Produto> produtos;
     private TableView<Produto> tableView;
@@ -25,44 +25,44 @@ public class Produto GUI extends Application {
 
     @Override
     public void start(Stage palco) {
-        conexaoDB = ConexaoDB.connectar();
+        conexaoDB = ConexaoDB.conectar();
         produtoDao = new ProdutoDao(conexaoDB);
         produtos = FXCollections.observableArrayList(produtoDao.listarTodos());
 
         palco.setTitle("Gerenciamento de Estoque de Produtos");
 
         VBox vbox = new VBox();
-        vbox.setPadding(new Insets(v: 10, v1: 10, v2: 10, v3: 10));
+        vbox.setPadding(new Insets( 10, 10, 10, 10));
         vbox.setSpacing(10);
 
         HBox nomeProdutoBox = new HBox();
         nomeProdutoBox.setSpacing(10);
-        Label nomeLabel = new Label(s: "Produto:");
+        Label nomeLabel = new Label("Produto:");
         nomeInput = new TextField();
         nomeProdutoBox.getChildren().addAll(nomeLabel, nomeInput);
 
-        Hbox quantidadeBox = new Hbox();
+        HBox quantidadeBox = new HBox();
         quantidadeBox.setSpacing(10);
-        Label quantidadeLabel = new Label(s: "Quantidade:");
+        Label quantidadeLabel = new Label("Quantidade:");
         quantidadeInput = new TextField();
         quantidadeBox.getChildren().addAll(quantidadeLabel, quantidadeInput);
 
-        Hbox preocBox = new Hbox();
+        HBox precoBox = new HBox();
         precoBox.setSpacing(10);
-        Label precoLabel = new Label(s: "Preco:");
+        Label precoLabel = new Label("Preco:");
         precoInput = new TextField();
         precoBox.getChildren().addAll(precoLabel, precoInput);
 
         HBox statusBox = new HBox();
         statusBox.setSpacing(10);
-        Label statusLabel = new Label(s: "Status:");
+        Label statusLabel = new Label("Status:");
         statusComboBox = new ComboBox<>();
         statusComboBox.getItems().addAll("Estoque Normal", "Estoque Baixo");
-        statusBox.getChildrem().addAll(statusLabel, statusComboBox);
+        statusBox.getChildren().addAll(statusLabel, statusComboBox);
 
         Button addButton = new Button("Adicionar");
-        addButton.setOnAction(ActionEvent e -> {
-            String preco = precoInput.getText().replace(oldChar: ',', newChar: '.');
+        addButton.setOnAction(e -> {
+            String preco = precoInput.getText().replace(',', '.');
             Produto produto = new Produto(nomeInput.getText(),
                     Integer.parseInt(quantidadeInput.getText()),
                     Double.parseDouble(preco),
@@ -73,15 +73,15 @@ public class Produto GUI extends Application {
         });
 
         Button updateButton = new Button("Atualizar");
-        updateButton.setOnAction(ActionEvent e -> {
+        updateButton.setOnAction(e -> {
             Produto selectedProduto = tableView.getSelectionModel().getSelectedItem();
             if (selectedProduto != null) {
                 selectedProduto.setNome(nomeInput.getText());
                 selectedProduto.setQuantidade(Integer.parseInt(quantidadeInput.getText()));
-                String preco = precoInput.getText().replace(oldChar: ',', newChar: '.');
+                String preco = precoInput.getText().replace(',', '.');
                 selectedProduto.setPreco(Double.parseDouble(preco));
                 selectedProduto.setStatus(statusComboBox.getValue());
-                produtoDao.atualizar(selectProduto);
+                produtoDao.atualizar(selectedProduto);
                 produtos.setAll(produtoDao.listarTodos());
                 limparCampos();
             }
@@ -89,7 +89,7 @@ public class Produto GUI extends Application {
 
 
         Button deleteButton = new Button("Excluir");
-        deleteButton.setOnAction(ActionEvent e -> {
+        deleteButton.setOnAction(e -> {
             Produto selectedProduto = tableView.getSelectionModel(). getSelectedItem();
             if (selectedProduto != null) {
                 produtoDao.excluir(selectedProduto.getId());
@@ -99,21 +99,21 @@ public class Produto GUI extends Application {
         });
 
         Button clearButton = new Button("Limpar");
-        clearButton.setOnAction(ActionEvent e -> limparCampos());
+        clearButton.setOnAction(e -> limparCampos());
 
         tableView = new TableView();
         tableView.setItems(produtos);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         List<TableColumn<Produto, ?>> columns = List.of(
-                criarColuna(title: "ID", property: "id"),
-                criarColuna(title: "Produto", property: "nome"),
-                criarColuna(title: "Quantidade", property: "quantidade"),
-                criarColuna(title: "Preco", property: "preco"),
-                criarColuna(title: "Status", property: "status")
+                criarColuna("ID", "id"),
+                criarColuna("Produto", "nome"),
+                criarColuna("Quantidade", "quantidade"),
+                criarColuna("Preco",  "preco"),
+                criarColuna("Status", "status")
         );
         tableView.getColumns().addAll(columns);
 
-        tableView.getSelectionModel().selectedItemProperty().addListener((ObservableValue<extends Produto> obs, Produto oldSelection, ProdutonewSelection) -> {
+        tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection !=null) {
                 nomeInput.setText(newSelection.getNome());
                 quantidadeInput.setText(String.valueOf(newSelection.getQuantidade()));
@@ -124,11 +124,11 @@ public class Produto GUI extends Application {
 
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
-        buttonBox.getChildren().addAll(addButton, updateButton, deleButton, clearButton);
+        buttonBox.getChildren().addAll(addButton, updateButton, deleteButton, clearButton);
 
         vbox.getChildren().addAll(nomeProdutoBox, quantidadeBox, precoBox, statusBox, buttonBox, tableView);
 
-        Scene scene = new Scene(vbox, v: 800, v1: 600);
+        Scene scene = new Scene(vbox, 800, 600);
         scene.getStylesheets().add("styles-produtos.css");
         palco.setScene(scene);
         palco.show();
@@ -150,7 +150,7 @@ public class Produto GUI extends Application {
         statusComboBox.setValue(null);
     }
 
-    private TableColumn<Produto, String> criarColuna(String tile, String property) {
+    private TableColumn<Produto, String> criarColuna(String title, String property) {
         TableColumn<Produto, String> col = new TableColumn<>(title);
         col.setCellValueFactory(new PropertyValueFactory<>(property));
         return col;
